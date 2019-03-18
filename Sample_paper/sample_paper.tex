@@ -21,9 +21,9 @@
 
 % --- Author Metadata here ---
 %%% REMEMBER TO CHANGE THE SEMESTER AND YEAR AS NEEDED
-\conferenceinfo{UMM CSci Senior Seminar Conference, April 2018}{Morris, MN}
+\conferenceinfo{UMM CSci Senior Seminar Conference, April 2019}{Morris, MN}
 
-\title{UMM CSci Senior Seminar LaTeX template}
+\title{An Analysis of IoT System Applications on Global Public Health Issues}
 
 \numberofauthors{1}
 
@@ -34,78 +34,77 @@
 % affiliation/address with \affaddr, and tag the
 % e-mail address with \email.
 \alignauthor
-Chris S. Student\\
+David Chong\\
 	\affaddr{Division of Science and Mathematics}\\
 	\affaddr{University of Minnesota, Morris}\\
 	\affaddr{Morris, Minnesota, USA 56267}\\
-	\email{cssxxxx00000@morris.umn.edu}
+	\email{chong050@morris.umn.edu}
 }
 
 \maketitle
 \begin{abstract}
-This paper provides a sample of a \LaTeX\ document which conforms,
-somewhat loosely, to the formatting guidelines for the University of
-Minnesota, Morris, Computer Science Senior Seminar proceedings.
-It is based heavily on (and takes material directly from) a similar document 
-illustrating the format of the ACM SIG Proceedings, which we have based our
-proceedings format on.
-
-The original ACM document tried to include
-\begin{quote}
-every imaginable sort
-of ``bells and whistles", such as a subtitle, footnotes on
-title, subtitle and authors, as well as in the text, and
-every optional component (e.g. Acknowledgments, Additional
-Authors, Appendices), not to mention examples of
-equations, theorems, tables and figures.
-\end{quote}
-
-We've removed many of the more esoteric tricks here because either
-they'll never be used (e.g., multiple authors) or are used \emph{very}
-rarely (e.g., appendices). Refer to the original ACM document for more
-of those fancy examples.
-% The current paper format *only* allows inline comments using the todo
-% macro. That's kind of a bummer, and it would be neat if someone figured
-% out how to change the acmconf style to allow this. I suspect it isn't *hard*
-% but there are quite a few details that have to be sorted out in synchrony.
-\todo[inline]{Needs more work}
+In this paper I detail information needed in order to understand an Internet of Things (IoT) system. I then examine researchers efforts in designing systems to detect potentially problematic mosquito populations.
 \end{abstract}
 
-\keywords{ACM proceedings, \LaTeX, text tagging}
+\keywords{Internet of Things}
 
 \section{Introduction}
 \label{sec:introduction}
 
-The \textit{proceedings} are the records of a conference, and conference
-editors like ACM seek to give their conference by-products a uniform,
-high-quality appearance. We also would like our proceedings to look highly
-professional, so we're borrowing heavily from the ACM formatting guidelines.
-These include some
-rigid requirements for the format of the proceedings documents: there
-is a specified format (balanced  double columns), a specified
-set of fonts (Arial or Helvetica and Times Roman) in
-certain specified sizes (for instance, 9 point for body copy),
-a specified live area (18 $\times$ 23.5 cm [7" $\times$ 9.25"]) centered on
-the page, specified size of margins (2.54cm [1"] top and
-bottom and 1.9cm [.75"] left and right; specified column width
-(8.45cm [3.33"]) and gutter size (.083cm [.33"]).
+The Internet of Things is a frequent topic of interest in the Computer Science disipline; but it is often talked about in vague terms. I will be detailing what is an IoT system, what goals IoT systems have, how those goals can be met, and some concerns that come up when discussing IoT systems. I will be analyzing a few real world use cases of IoT systems. I will discuss differences between the systems and why certain requirements are needed in some while not in others.
 
-\todo[inline, color=green]{I really like this section.}
+\section{Background}
+\label{sec:background}
 
-The good news is, with only a handful of manual
-settings\footnote{One of these, the \texttt{\textbackslash alignauthor}, command, 
-you have
-already used; another, \texttt{\textbackslash balancecolumns} will
-be used in your very last run of \LaTeX\ to ensure
-balanced column heights on the last page.} the \LaTeX\ document
-class file handles all of this for you.
+%Here I need to talk about hardware acceleration, algorithms and big O, autovectorize and parallel computing and threading
+%May briefly talk about various IoT devices like Intel Edison, Particle Photon, and Raspberry Pi
 
-The remainder of this document is concerned with showing, in
-the context of an ``actual'' document, the \LaTeX\ commands
-specifically available for denoting the structure of a
-proceedings paper, rather than with giving rigorous descriptions
-or explanations of such commands. Section~\ref{sec:body} introduces the main
-examples of formatting, and Section~\ref{sec:conclusions} wraps things up. 
+\section{Example A: Mosquito Detection}
+\label{sec:mosquito}
+
+In our first example, Ravi et al. were able to design an IoT system that was able to detect mosquito populations with an 80\% accuracy. There were able to achieve this using tiny board computers like Intel Edison and Raspbery Pi 3. Their main goal was to create a system that would be able to detect mosquito populations more efficiently than current methods. More granular goals included: keeping cost per device low, maintain high efficency through various optimizations -- this in turn creates another goal of maintaining low power usage in order to not need to service remote devices.
+
+The researchers needed to first decide which devices would best suit their application. The main deciding factor here was how long the battery would last as the devices are ment to be used in remote locations such as mines, swamps, etc. 
+
+%Here I am going to add possibly figure 2 (Need to explain FFT, kNN, and bayesian classifier at least briefly) and definitly figure 3 from the mosquito article.
+
+The previous two figures give us a view of how data is processed in order to get meaningful data from the mosquito measurements. Each sample must be processed through the three steps in order to accuratly classify and code the data. The researchers found this embedded computation method to be 80 times more energy efficient than using radio communication of the raw data. This method provides around two months of usage versus the radio methods mere 20 hours on a 2000 mAh AA battery on an Intel Edison. It is worth mentioning here -- the system sends data once per day and remains in a low power standby when not computing or sending data.
+
+%Here I want to analyze the big O for the pseudocode
+
+The researchers were able to identify that 80-90\% of the runtime was taken up by the FFT component -- see above figure. They were able to determine that usage of hardware accelerators were able to speed up the computation of this step by a factor of two.
+
+The researchers also found that a trade off between precision and power usage would be valuable to the system. Originally their implementation used 32 bit floating-point hardware. This ment that computation on this data would be slower and require more storage -- both of these factors reduce the overall energy efficiency of the device. This prompted the researchers to instead choose to use 16 bit fixed point as their primary data type. They determined that this trade off would be worth the loss in precision in this specific case.
+
+The researchers found they were able to add flags to their code in order to further optimize compiliation. An example of this would be use of the -msse2 flag. This allows the code to auto-vectorize and run parts in parallel. %this needs to be better explained
+Other optimizations such as loop unrolling, reassociation and other arithmetic transformations due to use of compiler flags allow for further trade offs to be made granting higher speed of computation and less energy usage while losing precision. The researches found this acceptable with the caveat that overall classification accuracy remained unaffected.
+
+These optimizations are both made on the hardware and the software.
+
+%Here I want to import figure 6 from the mosquito article -- un-opt has no flags, opt1 has single threading, opt2 has multithreading - need to talk about hardsware optimizations
+%Need to explain FFT, kNN, and bayesian classifier at least briefly or above - needed in order to talk about software optimizations
+%Will summarize the figures here rather than show
+
+In the end; the researchers were able to design a system which they say could be used in tandem with existing insect classification efforts in order to provide a more rich set of data to help identify the problematic mosquito populations quickly.
+
+\section*{Acknowledgments}
+\label{sec:acknowledgments}
+
+I would like to thank professors Lamberty and Machkasova for there countinuous help and feedback throughout this course. I would  like to thank the other professors in the CSCI faculty as well. I would also like to thank my friends and family who have helped me through the process of my Senior Seminar.
+
+% The following two commands are all you need in the
+% initial runs of your .tex file to
+% produce the bibliography for the citations in your paper.
+\bibliographystyle{abbrv}
+% sample_paper.bib is the name of the BibTex file containing the
+% bibliography entries. Note that you *don't* include the .bib ending here.
+\bibliography{sample_paper}  
+% You must have a proper ".bib" file
+%  and remember to run:
+% latex bibtex latex latex
+% to resolve all references
+
+\end{document}
 
 \section{The {\secit Body} of The Paper}
 \label{sec:body}
@@ -346,6 +345,7 @@ Command & A Number & Comments \\ \hline
 \end{table*}
 % end the environment with {table*}, NOTE not {table}!
 
+
 \subsection{Citations}
 \label{sec:citations}
 
@@ -479,37 +479,3 @@ of the reference to the \LaTeX\ book, the citations in
 this paper are to articles which have nothing to
 do with the present subject and are used as
 examples only.
-
-\section*{Acknowledgments}
-\label{sec:acknowledgments}
-
-This section is optional; it is a location for you
-to acknowledge grants, funding, editing assistance and
-what have you.
-
-You want to use the \texttt{\textbackslash section*} version of the \texttt{section}
-command, as an acknowledgments section typically does \emph{not} get
-a number.
-
-It is common (but by no means necessary) for students to thank
-their advisor, and possibly other faculty, friends, and family who provided
-useful feedback on the paper as it was being written.
-
-In the present case, for example, the
-authors would like to thank Gerald Murray of ACM for
-his help in codifying this \textit{Author's Guide}
-and the \textbf{.cls} and \textbf{.tex} files that it describes.
-
-% The following two commands are all you need in the
-% initial runs of your .tex file to
-% produce the bibliography for the citations in your paper.
-\bibliographystyle{abbrv}
-% sample_paper.bib is the name of the BibTex file containing the
-% bibliography entries. Note that you *don't* include the .bib ending here.
-\bibliography{sample_paper}  
-% You must have a proper ".bib" file
-%  and remember to run:
-% latex bibtex latex latex
-% to resolve all references
-
-\end{document}
